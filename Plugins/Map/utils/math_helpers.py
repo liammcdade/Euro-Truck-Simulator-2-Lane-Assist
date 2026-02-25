@@ -14,13 +14,14 @@ def DistanceBetweenPoints(
     :return float: Distance
     """
     if len(p1) == 2:
-        return math.sqrt(math.pow(p2[0] - p1[0], 2) + math.pow(p2[1] - p1[1], 2))
+        dx = p2[0] - p1[0]
+        dy = p2[1] - p1[1]
+        return math.sqrt(dx * dx + dy * dy)
     else:
-        return math.sqrt(
-            math.pow(p2[0] - p1[0], 2)
-            + math.pow(p2[1] - p1[1], 2)
-            + math.pow(p2[2] - p1[2], 2)
-        )
+        dx = p2[0] - p1[0]
+        dy = p2[1] - p1[1]
+        dz = p2[2] - p1[2]
+        return math.sqrt(dx * dx + dy * dy + dz * dz)
 
 
 def LerpTuple(
@@ -96,11 +97,10 @@ def IsInFront(
         point[0] - truck_position[0],
         point[len(point) - 1] - truck_position[len(truck_position) - 1],
     ]
-    angle = math.acos(
-        np.dot(forward_vector, point_forward_vector)
-        / (np.linalg.norm(forward_vector) * np.linalg.norm(point_forward_vector))
-    )
-    angle = math.degrees(angle)
+    cross = np.cross(forward_vector, point_forward_vector)
+    dot = np.dot(forward_vector, point_forward_vector)
+    angle_rad = np.arctan2(cross, dot)
+    angle = math.degrees(angle_rad)
     return -90 < angle < 90
 
 
@@ -130,13 +130,12 @@ def GetMostInDirection(
             point[0] - truck_position[0],
             point[len(point) - 1] - truck_position[len(truck_position) - 1],
         ]
-        angle = math.acos(
-            np.dot(forward_vector, point_forward_vector)
-            / (np.linalg.norm(forward_vector) * np.linalg.norm(point_forward_vector))
-        )
-        angle = math.degrees(angle)
-        if angle < best_angle:
-            best_angle = angle
+        cross = np.cross(forward_vector, point_forward_vector)
+        dot = np.dot(forward_vector, point_forward_vector)
+        angle_rad = np.arctan2(cross, dot)
+        angle = math.degrees(angle_rad)
+        if abs(angle) < best_angle:
+            best_angle = abs(angle)
             best_index = i
 
     return best_index
@@ -148,7 +147,9 @@ def InOut(s: float) -> float:
     :param float s: Interpolation value.
     :return float: InOut interpolated value.
     """
-    return 3 * math.pow(s, 2) - 2 * math.pow(s, 3)
+    s2 = s * s
+    s3 = s2 * s
+    return 3 * s2 - 2 * s3
 
 
 def EaseOutInverted(s: float) -> float:
@@ -170,10 +171,12 @@ def Hermite(s, x, z, tanX, tanZ):
     :param float tanZ: The tangent z value.
     :return float: The hermite interpolated value.
     """
-    h1 = 2 * math.pow(s, 3) - 3 * math.pow(s, 2) + 1
-    h2 = -2 * math.pow(s, 3) + 3 * math.pow(s, 2)
-    h3 = math.pow(s, 3) - 2 * math.pow(s, 2) + s
-    h4 = math.pow(s, 3) - math.pow(s, 2)
+    s2 = s * s
+    s3 = s2 * s
+    h1 = 2 * s3 - 3 * s2 + 1
+    h2 = -2 * s3 + 3 * s2
+    h3 = s3 - 2 * s2 + s
+    h4 = s3 - s2
     return h1 * x + h2 * z + h3 * tanX + h4 * tanZ
 
 

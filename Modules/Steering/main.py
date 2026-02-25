@@ -23,15 +23,16 @@ class Module(ETS2LAModule):
     """USE THIS WHEN USING GAMEPAD MODE"""
     IGNORE_GAME: bool = True
     """Use this to ignore the game steering."""
-    steeringValues: list[SteeringValue] = []
+    steeringValues: deque[SteeringValue] = deque()
     gameDifference: float = 0
 
     def imports(self):
-        global np, cv2, time, logging
+        global np, cv2, time, logging, deque
         import numpy as np
         import cv2
         import time
         import logging
+        from collections import deque
 
     def init(self):
         self.SMOOTH_TIME = 0.1  # seconds
@@ -45,7 +46,7 @@ class Module(ETS2LAModule):
         self.IGNORE_SMOOTH = True
         """USE THIS WHEN USING GAMEPAD MODE"""
         self.IGNORE_GAME = True
-        """Use this to ignore the game steering."""
+        """Use this to ignore deque()e game steering."""
         self.steeringValues = []
         self.gameDifference = 0
 
@@ -247,13 +248,13 @@ class Module(ETS2LAModule):
             gameDifference = 0
 
         # Remove all values that are older than SMOOTH_TIME
-        if self.SMOOTH_TIME > 0:
-            while self.steeringValues[0].IsOlderThan(
+        if self.SMOOTH_TIME > 0: and self.steeringValues[0].IsOlderThan(
                 time.perf_counter() - self.SMOOTH_TIME
             ):
-                self.steeringValues.pop(0)
+                self.steeringValues.popleft()
         else:
             while len(self.steeringValues) > 1:
+                self.steeringValues.popleft() > 1:
                 self.steeringValues.pop(0)
 
         # Calculate the steering angle

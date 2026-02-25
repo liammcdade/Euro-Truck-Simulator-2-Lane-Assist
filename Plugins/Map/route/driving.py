@@ -277,23 +277,11 @@ def GetSteering():
             ) / np.linalg.norm(centerline)
             # data.plugin.tags.lateral_offset = lateral_offset
 
-            # Calculate the dot product and the norms
+            # Calculate the angle using atan2 for better numerical stability
+            cross = np.cross(forward_vector, centerline)
             dot_product = np.dot(forward_vector, centerline)
-            norm_forward = np.linalg.norm(forward_vector)
-            norm_centerline = np.linalg.norm(centerline)
-
-            # Calculate the cosine of the angle
-            cos_angle = dot_product / (norm_forward * norm_centerline)
-
-            # Clamp the value to the valid range [-1, 1] to avoid numerical inaccuracies
-            cos_angle = np.clip(cos_angle, -1.0, 1.0)
-
-            # Calculate the angle
-            angle = np.arccos(cos_angle)
-            angle = math.degrees(angle)
-
-            if np.cross(forward_vector, centerline) < 0:
-                angle = -angle
+            angle_rad = np.arctan2(cross, dot_product)
+            angle = np.degrees(angle_rad)
 
             if angle > 140:
                 angle = 0
@@ -320,14 +308,10 @@ def GetSteering():
             else:
                 vector = [x - data.truck_x, z - data.truck_z]
 
-            angle = np.arccos(
-                np.dot(forward_vector, vector)
-                / (np.linalg.norm(forward_vector) * np.linalg.norm(vector))
-            )
-            angle = math.degrees(angle)
-
-            if np.cross(forward_vector, vector) < 0:
-                angle = -angle
+            cross = np.cross(forward_vector, vector)
+            dot = np.dot(forward_vector, vector)
+            angle_rad = np.arctan2(cross, dot)
+            angle = math.degrees(angle_rad)
 
             return angle * 2 * multiplier
         else:

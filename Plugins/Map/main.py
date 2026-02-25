@@ -517,7 +517,9 @@ class Plugin(ETS2LAPlugin):
                     to_road = np.array(to_road) / np.linalg.norm(to_road)
 
                     dot = np.dot(forward_vector, to_road)
-                    angle = np.arccos(dot) * (180 / np.pi)
+                    cross = np.cross(forward_vector, to_road)
+                    angle_rad = np.arctan2(cross, dot)
+                    angle = np.degrees(angle_rad)
 
                     self.tags.closest_road_angle = angle
 

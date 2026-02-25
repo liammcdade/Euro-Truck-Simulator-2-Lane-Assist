@@ -20,12 +20,8 @@ def CalculateCurvature(points):
 
         # Angle change
         dot_product = np.dot(v1, v2)
-        norm_product = np.linalg.norm(v1) * np.linalg.norm(v2)
-        if norm_product == 0:
-            continue  # Skip to avoid division by zero
-        cos_angle = dot_product / norm_product
-        cos_angle = np.clip(cos_angle, -1, 1)  # Ensure valid arccos input
-        delta_theta = np.arccos(cos_angle)
+        cross = np.cross(v1, v2)
+        delta_theta = abs(np.arctan2(cross, dot_product))
 
         # Arc length (average of the two segment lengths)
         delta_s = (np.linalg.norm(v1) + np.linalg.norm(v2)) / 2

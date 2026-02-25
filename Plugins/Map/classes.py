@@ -1233,8 +1233,8 @@ class ModelDescription:
         self.start = start
         self.end = end
         self.height = height  # z axis
-        self.width = math.sqrt(math.pow(start.x - end.x, 2))  # x axis
-        self.length = math.sqrt(math.pow(start.y - end.y, 2))  # y axis
+        self.width = abs(start.x - end.x)  # x axis
+        self.length = abs(start.y - end.y)  # y axis
 
     def json(self) -> dict:
         return {
